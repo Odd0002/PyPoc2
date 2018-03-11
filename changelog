@@ -1,2 +1,5 @@
+0.1.00.1:
+Fix bug with checking usernames
+
 0.1.00.0:
 Rewrite entire server using Twisted, add teleport, non-CPE client, and color chat support, and a few more features

@@ -4,7 +4,7 @@ map_dims = types.SimpleNamespace()
 
 PORT = 25565
 NAME = "Change this name"
-SOFTWARE = "PyPoc2 0.1.00.0"
+SOFTWARE = "PyPoc2 0.1.00.1"
 MOTD = "horspeed=1.5"
 MAPS_DIR = "maps"
 CHECK_USERNAMES = True

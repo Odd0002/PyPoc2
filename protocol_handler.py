@@ -95,7 +95,7 @@ def handle_name_setup(proto_inst, name, mppass):
         return False
     
     if config.CHECK_USERNAMES:
-        if not helpers.check_username(name, mppass, proto_inst.factory.salt):
+        if not helpers.check_username(name, mppass, proto_inst.factory.data.salt):
             helpers.disconnect_protocol(proto_inst, "Wrong MPPASS!")
             return False
 
