@@ -2,5 +2,6 @@ ops.txt
 banned.txt
 crashbanned.txt
 silentbanned.txt
+config.py
 maps/
 __pycache__/

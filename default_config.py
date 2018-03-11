@@ -2,12 +2,12 @@ import types
 map_dims = types.SimpleNamespace()
 
 
-PORT = 9999
-NAME = "INF. MAP SERV 2, now 34.8% more stable!"
+PORT = 25565
+NAME = "Change this name"
 SOFTWARE = "PyPoc2 0.1.00.0"
 MOTD = "horspeed=1.5"
 MAPS_DIR = "maps"
-CHECK_USERNAMES = False
+CHECK_USERNAMES = True
 UPDATE_DELAY = 0.03
 
 MAX_USERS = 128
