@@ -9,4 +9,6 @@ Copy default_config.py to config.py and change settings (if wanted).
 
 # Required libraries:
 
+Twisted
+
 Numpy
