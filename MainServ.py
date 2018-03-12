@@ -33,7 +33,7 @@ class classic_CPE_protocol(protocol.Protocol):
             protocol_handler.handle_data_recv(self)
         except Exception as e:
             print("dataReceived exception:", e)
-            raise Exception
+            #raise Exception
 
     def connectionLost(self, reason):
         bg_threads.handle_player_disconnects(self)

@@ -69,10 +69,11 @@ class Player:
         self.packet_queue.put(packet)
 
     def add_msg(self, text):
+        space = b' '
         cleaned_text = text.decode('ibm437').strip()
-        if text[1] == b' ':
+        if text[1] == space[0]:
             cleaned_text = ' ' + cleaned_text
-        if text[-1] == b' ':
+        if text[-1] == space[0]:
             cleaned_text += ' '
         self.message_buffer += cleaned_text
 
@@ -108,7 +109,7 @@ class Player:
         self.pitch = player.pitch
 
     def update_pos(self, pos_data):
-        if (time.time() - self.last_teleport_time > 0.5):
+        if (time.time() - self.last_teleport_time > 0.75):
             self.xpos = pos_data[2]
             self.ypos = pos_data[3]
             self.zpos = pos_data[4]
@@ -124,10 +125,11 @@ class Player:
         prev_z_offset = self.z_offset
         big_border_size = config.BORDER_SIZE * 32
         is_long = helpers.get_extension_state(self, ('ExtEntityPositions', 1))
-        
-        
+
+
         if (p_block_xpos + config.BORDER_SIZE > config.map_dims.x):
             print("moving player +x!")
+            self.last_teleport_time = time.time()
             teleport_packet = helpers.gen_pos_packet(-1, (config.map_dims.center_x * 32) - big_border_size, self.ypos, self.zpos, self.yaw, self.pitch, is_long)
             self.xpos = (config.map_dims.center_x // 2) * 32
             self.x_offset += config.map_dims.center_x
@@ -136,6 +138,7 @@ class Player:
             bbu_sm_thread.start()
         elif (p_block_xpos - config.BORDER_SIZE < 0):
             print("moving player -x!")
+            self.last_teleport_time = time.time()
             teleport_packet = helpers.gen_pos_packet(-1, (config.map_dims.center_x * 32) + big_border_size, self.ypos, self.zpos, self.yaw, self.pitch, is_long)
             self.xpos = (config.map_dims.center_x // 2) * 32
             self.x_offset -= config.map_dims.center_x
@@ -144,6 +147,7 @@ class Player:
             bbu_sm_thread.start()
         elif (p_block_zpos + config.BORDER_SIZE > config.map_dims.z):
             print("moving player +z!")
+            self.last_teleport_time = time.time()
             teleport_packet = helpers.gen_pos_packet(-1, self.xpos, self.ypos, (config.map_dims.center_z * 32) - big_border_size, self.yaw, self.pitch, is_long)
             self.zpos = (config.map_dims.center_z // 2) * 32
             self.z_offset += config.map_dims.center_z
@@ -152,11 +156,12 @@ class Player:
             bbu_sm_thread.start()
         elif (p_block_zpos - config.BORDER_SIZE < 0):
             print("moving player -z!")
+            self.last_teleport_time = time.time()
             teleport_packet = helpers.gen_pos_packet(-1, self.xpos, self.ypos, (config.map_dims.center_z * 32) + big_border_size, self.yaw, self.pitch, is_long)
             self.zpos = (config.map_dims.center_z // 2) * 32
             self.z_offset -= config.map_dims.center_z
             self.add_packet(teleport_packet)
             bbu_sm_thread = threading.Thread(target=map_handler.update_player_map_data, args=(self.x_offset, prev_z_offset, self.x_offset, self.z_offset, self, teleport_packet))
             bbu_sm_thread.start()
-        
+
         pass

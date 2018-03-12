@@ -1,3 +1,9 @@
+0.1.00.2:
+Stop crashing a thread if an error occurs
+Fix map changes not resetting the last teleport time
+Add support for //command
+fix spaces not being added at the start and ends of messages
+
 0.1.00.1:
 Fix bug with checking usernames
 

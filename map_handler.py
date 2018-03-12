@@ -50,6 +50,7 @@ def update_player_map_data(prev_x_offset, prev_z_offset, new_x_offset, new_z_off
     if helpers.get_extension_state(player, ('MessageTypes', 1)):
         player.add_packet(end_loading_text)
     player.add_packet(end_splash_screen)
+    player.last_teleport_time = time.time()
     player.loading = False
     print("took", time.time() - curr_time)
 

@@ -232,9 +232,12 @@ def handle_chat_packet(data, proto_inst):
 
 def handle_chat(tmp_player, proto_inst):
     messages = tmp_player.get_messages()
-    if messages[0] == '/':
+    if messages[0] == '/' and messages[1] != '/':
         commands.handle_command(messages, tmp_player, proto_inst)
+
     else:
+        if messages[0] == '/':
+            messages = messages[1:]
         full_msg = tmp_player.displayname + r': %f' + messages
         full_msg_color = proto_inst.factory.data.colors_regex.sub('&', full_msg)
         
