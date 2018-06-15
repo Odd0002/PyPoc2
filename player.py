@@ -71,7 +71,7 @@ class Player:
     def add_msg(self, text):
         space = b' '
         cleaned_text = text.decode('ibm437').strip()
-        if text[1] == space[0]:
+        if text[0] == space[0]:
             cleaned_text = ' ' + cleaned_text
         if text[-1] == space[0]:
             cleaned_text += ' '
