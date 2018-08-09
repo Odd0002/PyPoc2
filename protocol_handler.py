@@ -232,18 +232,19 @@ def handle_chat_packet(data, proto_inst):
 
 def handle_chat(tmp_player, proto_inst):
     messages = tmp_player.get_messages()
-    if messages[0] == '/' and messages[1] != '/':
-        commands.handle_command(messages, tmp_player, proto_inst)
 
-    else:
-        if messages[0] == '/':
-            messages = messages[1:]
-        full_msg = tmp_player.displayname + r': %f' + messages
-        full_msg_color = proto_inst.factory.data.colors_regex.sub('&', full_msg)
-        
-        packets_to_send = helpers.handle_gen_chat_packets(full_msg_color, len(tmp_player.displayname), 0)
-        for curr_packet in packets_to_send:
-            proto_inst.factory.data.chat_broadcast_queue.put((curr_packet, tmp_player.username))
+    # if it's a command then process it and return
+    if messages[1] != '/' and commands.process_if_command(tmp_player, messages, proto_inst):
+        return
+
+    if messages[0] == '/':
+        messages = messages[1:]
+    full_msg = tmp_player.displayname + r': %f' + messages
+    full_msg_color = proto_inst.factory.data.colors_regex.sub('&', full_msg)
+
+    packets_to_send = helpers.handle_gen_chat_packets(full_msg_color, len(tmp_player.displayname), 0)
+    for curr_packet in packets_to_send:
+        proto_inst.factory.data.chat_broadcast_queue.put((curr_packet, tmp_player.username))
 
 def handle_setblock_packet(data, proto_inst):
     tmp_player = proto_inst.player

@@ -1,67 +1,82 @@
 import helpers
 import map_handler
 
-def handle_command(cmd_txt, player, proto_inst):
-    to_split = cmd_txt[1:]
-    command_info = to_split.split(' ')
-    cmd = command_info[0]
-    if (cmd[0] == '/'):
-        pass
-    elif cmd == 'save':
-        handle_save(proto_inst)
-    elif cmd == 'kick':
-        handle_kick(command_info, player, proto_inst)
-    elif cmd == 'tp':
-        handle_tp(command_info, player, proto_inst)
+# Commands are inserted into this dictionary
+commands = dict()
 
-    pass
+def register_command(command, function, argumentNum, permissionLevel, helpString):
+    commands[command] = [ function, argumentNum, permissionLevel, helpString ]
 
+def command_handle_help(player, args, proto_inst):
+    if (len(args) > 0):
+        commandName = args[0]
 
-def handle_save(proto_inst):
+        if (not commandName in commands):
+            player.add_packet(helpers.gen_chat_packet("No such command: " + commandName, 0))
+            return
+
+        helpString = commands[commandName][3]
+        player.add_packet(helpers.gen_chat_packet(helpString, 0))
+        return
+
+    player.add_packet(helpers.gen_chat_packet("--- Commands: ---", 0))
+    for key, value in commands.items():
+        helpString = value[3]
+        player.add_packet(helpers.gen_chat_packet(helpString, 0))
+    player.add_packet(helpers.gen_chat_packet("---", 0))
+
+def command_handle_kick(player, args, proto_inst):
+    name = args[0]
+    reason = ""
+
+    if (len(args) > 1):
+        reason = " (" + " ".join(args[1:]) + ")"
+
+    players_matched = get_players(name, proto_inst)
+    if len(players_matched) > 1:
+        players_list = ''
+        for curr_player in players_matched:
+            players_list += curr_player.username + " "
+        info = helpers.handle_gen_chat_packets(r"More than 1 player matched: &6" + players_list, 0, 0)
+        for packet in info:
+            player.add_packet(packet)
+    elif len(players_matched) == 1:
+        helpers.disconnect_protocol(players_matched[0].proto_inst, "kicked by " + player.username + reason)
+    else:
+        info = helpers.gen_chat_packet("No such player found.", 0)
+        player.add_packet(info)
+
+def command_handle_save(player, args, proto_inst):
     map_handler.save_all_maps()
     save_info = helpers.gen_chat_packet("All maps saved!", 0)
     proto_inst.factory.data.chat_broadcast_queue.put((save_info, '**saves'))
 
-def handle_kick(command_info, player, proto_inst):
-    if not player.is_op:
-        handle_player_not_op(player)
+def command_handle_ban(player, args, proto_inst):
+    name = args[0]
+    reason = ""
+
+    if (len(args) > 1):
+        reason = " (" + " ".join(args[1:]) + ")"
+
+    players_matched = get_players(name, proto_inst)
+    if len(players_matched) > 1:
+        players_list = ''
+        for curr_player in players_matched:
+            players_list += curr_player.username + " "
+        info = helpers.handle_gen_chat_packets(r"More than 1 player matched: &6" + players_list, 0, 0)
+        for packet in info:
+            player.add_packet(packet)
+    elif len(players_matched) == 1:
+        proto_inst.factory.data.banned.append(players_matched[0].username)
+        helpers.disconnect_protocol(players_matched[0].proto_inst, "kicked by " + player.username + reason)
     else:
-        players_matched = get_players(command_info[1], proto_inst)
-        if len(players_matched) > 1:
-            players_list = ''
-            for curr_player in players_matched:
-                players_list += curr_player.username + " "
-            info = helpers.handle_gen_chat_packets(r"More than 1 player matched: &6" + players_list, 0, 0)
-            for packet in info:
-                player.add_packet(packet)
-        elif len(players_matched) == 1:
-            helpers.disconnect_protocol(players_matched[0].proto_inst, "kicked by " + player.username)
-        else:
-            info = helpers.gen_chat_packet("No such player found.", 0)
-            player.add_packet(info)
+        info = helpers.gen_chat_packet("No such player found.", 0)
+        player.add_packet(info)
 
-def handle_ban(command_info, player, proto_inst):
-    if not player.is_op:
-        handle_player_not_op(player)
-    else:
-        players_matched = get_players(command_info[1], proto_inst)
-        if len(players_matched) > 1:
-            players_list = ''
-            for curr_player in players_matched:
-                players_list += curr_player.username + " "
-            info = helpers.handle_gen_chat_packets(r"More than 1 player matched: &6" + players_list, 0, 0)
-            for packet in info:
-                player.add_packet(packet)
-        elif len(players_matched) == 1:
-            proto_inst.factory.data.banned.append(players_matched[0].username)
-            helpers.disconnect_protocol(players_matched[0].proto_inst, "kicked by " + player.username)
-        else:
-            info = helpers.gen_chat_packet("No such player found.", 0)
-            player.add_packet(info)
+def command_handle_tp(player, args, proto_inst):
+    name = args[0]
 
-
-def handle_tp(command_info, player, proto_inst):
-    players_matched = get_players(command_info[1], proto_inst)
+    players_matched = get_players(name, proto_inst)
     if len(players_matched) > 1:
         players_list = ''
         for curr_player in players_matched:
@@ -83,23 +98,54 @@ def handle_tp(command_info, player, proto_inst):
         info = helpers.gen_chat_packet("No such player found.", 0)
         player.add_packet(info)
 
+##############################
+# Register all commands here #
+##############################
+register_command("help", command_handle_help, 0, 0, "/help - displays command list")
+register_command("kick", command_handle_kick, 1, 1, "/kick <player> [reason] - kicks player from server")
+register_command("save", command_handle_save, 0, 1, "/save - saves map")
+register_command("ban", command_handle_ban, 1, 1, "/ban <player> [reason] - bans player from server")
+register_command("tp", command_handle_tp, 1, 0, "/tp <player> - teleports to player")
 
+def register_command(command, function, argumentNum, permissionLevel, helpString):
+    commands[command] = [ function, argumentNum, permissionLevel, helpString ]
 
+def handle_command(player, commandName, args, proto_inst):
+    if (not commandName in commands):
+        player.add_packet(helpers.gen_chat_packet("No such command: " + commandName, 0))
+        return
 
+    command = commands[commandName]
 
+    function = command[0]
+    argumentNum = command[1]
+    permissionLevel = command[2]
 
+    if (permissionLevel >= 1 and not player.is_op):
+        handle_player_not_op(player)
+        return
 
+    if (len(args) < argumentNum):
+        command_handle_help(player, [commandName], proto_inst)
+        return
 
+    # Call command function
+    function(player, args, proto_inst)
 
+# returns True if command, False if not
+def process_if_command(player, inputString, proto_inst):
+    if (inputString[0] == '/'):
+        inputString = " ".join(inputString.split())
+        commandTable = inputString[1:].split(' ')
 
+        handle_command(player, commandTable[0].lower(), commandTable[1:], proto_inst)
+        return True
 
+    return False
 
-
-
-
-
-
-
+####################
+# Helper functions #
+####################
 
 def get_players(username, proto_inst):
     players_matched = []
@@ -108,43 +154,6 @@ def get_players(username, proto_inst):
             print(username.lower())
             players_matched.append(player)
     return players_matched
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 def handle_player_not_op(player):
     info_packet = helpers.gen_chat_packet("You are not an operator!", 0)
