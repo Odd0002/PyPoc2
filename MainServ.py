@@ -1,5 +1,12 @@
 #!/bin/python3
 
+import threading
+import time
+
+from twisted.internet import protocol, reactor
+from twisted.internet.task import LoopingCall
+from twisted.internet.endpoints import TCP4ServerEndpoint
+
 #import shared_data
 import helpers
 import config
@@ -8,12 +15,6 @@ import protocol_handler
 import player
 import global_data
 import bg_threads
-
-import threading
-import time
-from twisted.internet import protocol, reactor
-from twisted.internet.task import LoopingCall
-from twisted.internet.endpoints import TCP4ServerEndpoint
 
 
 class classic_CPE_protocol(protocol.Protocol):
@@ -56,9 +57,9 @@ class classic_CPE_factory(protocol.ServerFactory):
     def buildProtocol(self, addr):
         return classic_CPE_protocol(self)
 
-    def handle_server_shutdown(self):   
+    def handle_server_shutdown(self):
         self.data.shutdown = True
-        time.sleep(0.1)    
+        time.sleep(0.1)
         finish_server(self.data)
         map_handler.save_all_maps()
         reactor.stop()

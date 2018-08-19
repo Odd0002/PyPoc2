@@ -186,7 +186,7 @@ def load_map(x_map_num, z_map_num):
     try:
         #Load map file using numpy, which contains multiple arrays, so select the first array
         file_data = np.load(map_file_compressed)
-        map_data = file_data[file_data.keys()[0]]
+        map_data = file_data[list(file_data.keys())[0]]
         maps_loaded[(x_map_num, z_map_num)] = map_data
     except FileNotFoundError as e:
         print(e)

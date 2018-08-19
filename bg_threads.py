@@ -11,7 +11,7 @@ def heartbeat_handler(players, salt, g_data):
         url_string = 'https://www.classicube.net/server/heartbeat/'
         values = {'name' : str(config.NAME), 'port' : str(config.PORT), \
                     'users' : str(len(players)), 'max' : str(config.MAX_USERS), \
-                    'public' : str(config.PUBLIC), 'salt' : str(salt), \
+                    'public' : str(config.PUBLIC).lower(), 'salt' : str(salt), \
                     'software' : str(config.SOFTWARE) }
         url_values = urllib.parse.urlencode(values)
         #print(url_values)
@@ -41,7 +41,7 @@ def update(data):
             else:
                 ping_counter += 1
 
-            if save_counter == 30000:
+            if save_counter == config.AUTOSAVE_INTERVAL:
                 map_handler.save_all_maps()
                 maps_saved_msg = helpers.gen_chat_packet("Maps autosaved.", 0)
                 data.chat_broadcast_queue.put((maps_saved_msg, '**autosaves'))

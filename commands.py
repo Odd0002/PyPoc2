@@ -107,9 +107,6 @@ register_command("save", command_handle_save, 0, 1, "/save - saves map")
 register_command("ban", command_handle_ban, 1, 1, "/ban <player> [reason] - bans player from server")
 register_command("tp", command_handle_tp, 1, 0, "/tp <player> - teleports to player")
 
-def register_command(command, function, argumentNum, permissionLevel, helpString):
-    commands[command] = [ function, argumentNum, permissionLevel, helpString ]
-
 def handle_command(player, commandName, args, proto_inst):
     if (not commandName in commands):
         player.add_packet(helpers.gen_chat_packet("No such command: " + commandName, 0))

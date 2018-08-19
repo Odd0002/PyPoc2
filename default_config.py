@@ -4,14 +4,17 @@ map_dims = types.SimpleNamespace()
 
 PORT = 25565
 NAME = "Change this name"
-SOFTWARE = "PyPoc2 0.1.00.1"
+SOFTWARE = "PyPoc2 0.1.00.2"
 MOTD = "horspeed=1.5"
 MAPS_DIR = "maps"
 CHECK_USERNAMES = True
-UPDATE_DELAY = 0.03
 
-MAX_USERS = 128
-PUBLIC = "true"
+UPDATE_DELAY = 0.03
+AUTOSAVE_INTERVAL = 30000 #time in (milliseconds/UPDATE_DELAY) between saves
+
+MAX_USERS = 16
+#Whether this server should show up in the server list
+PUBLIC = True
 
 SERVER_CPE_EXTENSIONS = (('CustomBlocks', 1), ('BulkBlockUpdate', 1), ('FullCP437', 1), ('MessageTypes', 1), ('SetMapEnvProperty', 1), ('HackControl', 1), ('LongerMessages', 1), ('ExtEntityPositions', 1), ('TwoWayPing', 1))
 
