@@ -124,6 +124,7 @@ def calc_bbu_map_change_packets(prev_x_offset, prev_z_offset, new_x_offset, new_
             pool.join()
         except:
             config.USE_MP = False
+            return calc_bbu_map_change_packets(prev_x_offset, prev_z_offset, new_x_offset, new_z_offset, use_bbu)
     
     else:
         fast_packets_to_send = list()
