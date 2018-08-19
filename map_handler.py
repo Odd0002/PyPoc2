@@ -1,5 +1,4 @@
 import collections
-import multiprocessing as mp
 import numpy as np
 import struct
 import zlib
@@ -8,6 +7,11 @@ import threading
 
 import config
 import helpers
+
+try:
+    import multiprocessing as mp
+except:
+    config.USE_MP = False
 
 maps_loaded = dict()
 
@@ -103,19 +107,31 @@ def calc_bbu_map_change_packets(prev_x_offset, prev_z_offset, new_x_offset, new_
     max_prev_z_map = (prev_z_offset + 1 + HALF_Z ) // HALF_Z
     min_prev_z_map = (prev_z_offset - 1 + HALF_Z ) // HALF_Z
 
-    pool = mp.Pool(processes=4)
-    fast_packets_to_send = pool.starmap(get_maps_diff, \
-                                  zip((min_new_x_map, min_new_x_map, max_new_x_map, max_new_x_map), \
-                                      (min_new_z_map, max_new_z_map, min_new_z_map, max_new_z_map), \
-                                      (min_prev_x_map, min_prev_x_map, max_prev_x_map, max_prev_x_map), \
-                                      (min_prev_z_map, max_prev_z_map, min_prev_z_map, max_prev_z_map), \
-                                      (0, 0, HALF_X, HALF_X), \
-                                      (0, HALF_Z, 0, HALF_Z), \
-                                      (use_bbu, use_bbu, use_bbu, use_bbu)
-                                      )
-                                  )
-    pool.close()
-    pool.join()
+    if config.USE_MP:
+        try:
+            pool = mp.Pool(processes=4)
+            fast_packets_to_send = pool.starmap(get_maps_diff, \
+                                        zip((min_new_x_map, min_new_x_map, max_new_x_map, max_new_x_map), \
+                                            (min_new_z_map, max_new_z_map, min_new_z_map, max_new_z_map), \
+                                            (min_prev_x_map, min_prev_x_map, max_prev_x_map, max_prev_x_map), \
+                                            (min_prev_z_map, max_prev_z_map, min_prev_z_map, max_prev_z_map), \
+                                            (0, 0, HALF_X, HALF_X), \
+                                            (0, HALF_Z, 0, HALF_Z), \
+                                            (use_bbu, use_bbu, use_bbu, use_bbu)
+                                            )
+                                        )
+            pool.close()
+            pool.join()
+        except:
+            config.USE_MP = False
+    
+    else:
+        fast_packets_to_send = list()
+        fast_packets_to_send.append(get_maps_diff(min_new_x_map, min_new_z_map, min_prev_x_map, min_prev_z_map, 0, 0, use_bbu))
+        fast_packets_to_send.append(get_maps_diff(min_new_x_map, max_new_z_map, min_prev_x_map, max_prev_z_map, 0, HALF_Z, use_bbu))
+        fast_packets_to_send.append(get_maps_diff(max_new_x_map, min_new_z_map, max_prev_x_map, min_prev_z_map, HALF_X, 0, use_bbu))
+        fast_packets_to_send.append(get_maps_diff(max_new_x_map, max_new_z_map, max_prev_x_map, max_prev_z_map, HALF_X, HALF_Z, use_bbu))
+    
     return fast_packets_to_send
 
 

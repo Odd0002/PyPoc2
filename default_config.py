@@ -13,8 +13,13 @@ UPDATE_DELAY = 0.03
 AUTOSAVE_INTERVAL = 30000 #time in (milliseconds/UPDATE_DELAY) between saves
 
 MAX_USERS = 16
+
 #Whether this server should show up in the server list
 PUBLIC = True
+
+#Whether to use multiprocessing
+USE_MP = True
+
 
 SERVER_CPE_EXTENSIONS = (('CustomBlocks', 1), ('BulkBlockUpdate', 1), ('FullCP437', 1), ('MessageTypes', 1), ('SetMapEnvProperty', 1), ('HackControl', 1), ('LongerMessages', 1), ('ExtEntityPositions', 1), ('TwoWayPing', 1))
 
