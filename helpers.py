@@ -36,6 +36,14 @@ def disconnect_protocol(protocol_instance, reason):
     protocol_instance.transport.write(disconnect_packet)
     protocol_instance.transport.loseConnection()
 
+def gen_set_texturepack_packet(url):
+    return b'\x28' \
+        + struct.pack('!64s', prep_string(url))
+
+def gen_env_info_packet(env_setting, value):
+    return b'\x29' \
+        + struct.pack('!B', env_setting) \
+        + struct.pack('!I', value)
 
 def gen_level_init_packet():
     return b'\x02'
@@ -208,7 +216,7 @@ def handle_gen_chat_packets(msg_left, name_length, p_id):
             if split_point <= 0:
                 split_point = 63
             string_to_prep = '>' + msg_left[:split_point]
-            print("string to prep:", string_to_prep)
+            #print("string to prep:", string_to_prep)
             msg_string = prep_string(string_to_prep)
             packets.append(gen_chat_packet(msg_string, p_id))
             msg_left = msg_left[split_point:]

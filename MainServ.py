@@ -3,7 +3,7 @@
 import threading
 import time
 
-from twisted.internet import protocol, reactor
+from twisted.internet import protocol, reactor, task
 from twisted.internet.task import LoopingCall
 from twisted.internet.endpoints import TCP4ServerEndpoint
 
@@ -16,6 +16,8 @@ import player
 import global_data
 import bg_threads
 
+import signal
+import sys
 
 class classic_CPE_protocol(protocol.Protocol):
     def __init__(self, factory):
@@ -44,37 +46,36 @@ class classic_CPE_factory(protocol.ServerFactory):
     def __init__(self, data):
         #self.data = global_data.Data()
         self.data = data
-        heartbeat_thread = threading.Thread(target=bg_threads.heartbeat_handler, args=(self.data.players, self.data.salt, self.data))
-        heartbeat_thread.daemon = True
-        heartbeat_thread.start()
-        updater_thread = LoopingCall(bg_threads.send_player_packets, self.data.players)
-        updater_thread.start(config.UPDATE_DELAY)
-        update_thread = threading.Thread(target=bg_threads.update, args=(self.data,))
-        update_thread.daemon = True
-        update_thread.start()
-        self.data.update_thread = update_thread
+        heartbeat_thread = task.LoopingCall(bg_threads.heartbeat_handler, self.data.players, self.data.salt, self.data)
+        heartbeat_thread.start(60)
+        player_packet_sender_thread = LoopingCall(bg_threads.send_player_packets, self.data.players)
+        player_packet_sender_thread.start(config.UPDATE_DELAY)
+
+        update_thread = LoopingCall(bg_threads.update, self.data)
+        update_thread.start(config.UPDATE_DELAY)
 
     def buildProtocol(self, addr):
         return classic_CPE_protocol(self)
 
-    def handle_server_shutdown(self):
-        self.data.shutdown = True
-        time.sleep(0.1)
-        finish_server(self.data)
-        map_handler.save_all_maps()
-        reactor.stop()
+    def shutdown(arg1, arg2):
+        reactor.callFromThread(finish_server)
+        reactor.callLater(2, stop_reactor)
 
-
-
-def finish_server(data):
+def finish_server():
+    data = global_data.Data()
     print("players:", data.players)
     shutdown_packet = helpers.gen_disconnect_player_packet("Server shutting down!")
-    for curr_player in data.players:
+    tmp_players = data.players
+    data.players = []
+    for curr_player in tmp_players:
+        #reactor.callLater(2, curr_player.proto_inst.transport.abortConnection)
         curr_player.proto_inst.transport.write(shutdown_packet)
+        print("wrote disconnect packet: ", shutdown_packet)
         curr_player.proto_inst.transport.loseConnection()
-    print("done shutting down!")
-    time.sleep(0.1)
+        # print("lost connection!")
 
+def stop_reactor():
+    reactor.stop()
 
 
 all_data = global_data.Data()
@@ -82,4 +83,5 @@ all_data = global_data.Data()
 endpoint = TCP4ServerEndpoint(reactor, config.PORT)
 #reactor.listenTCP(config.PORT, classic_CPE_factory())
 endpoint.listen(classic_CPE_factory(all_data))
+signal.signal(signal.SIGINT, shutdown)
 reactor.run()

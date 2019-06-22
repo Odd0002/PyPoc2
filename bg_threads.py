@@ -6,27 +6,20 @@ import helpers
 import map_handler
 
 def heartbeat_handler(players, salt, g_data):
-    while not g_data.shutdown:
-        #print(players, salt)
-        url_string = 'https://www.classicube.net/server/heartbeat/'
-        values = {'name' : str(config.NAME), 'port' : str(config.PORT), \
-                    'users' : str(len(players)), 'max' : str(config.MAX_USERS), \
-                    'public' : str(config.PUBLIC).lower(), 'salt' : str(salt), \
-                    'software' : str(config.SOFTWARE) }
-        url_values = urllib.parse.urlencode(values)
-        #print(url_values)
-        full_url = url_string + '?' + url_values
-        try:
-            data = urllib.request.urlopen(full_url)
-            #print(data.read())
-        except Exception as e:
-            print("Heartbeat failed:", e)
-        
-        for i in range(60):
-            if not g_data.shutdown:
-                time.sleep(1)
-
-
+    #print(players, salt)
+    url_string = 'https://www.classicube.net/server/heartbeat/'
+    values = {'name' : str(config.NAME), 'port' : str(config.PORT), \
+                'users' : str(len(players)), 'max' : str(config.MAX_USERS), \
+                'public' : str(config.PUBLIC).lower(), 'salt' : str(salt), \
+                'software' : str(config.SOFTWARE) }
+    url_values = urllib.parse.urlencode(values)
+    #print(url_values)
+    full_url = url_string + '?' + url_values
+    try:
+        data = urllib.request.urlopen(full_url)
+        #print(data.read())
+    except Exception as e:
+        print("Heartbeat failed:", e)
 
 def update(data):
     delay = config.UPDATE_DELAY
@@ -108,10 +101,7 @@ def handle_player_removals(players):
     for player in players:
         if player.remove:
             player.proto_inst.transport.loseConnection()
-
-
-
-
+            
 
 def handle_player_disconnects(proto_inst):
     if proto_inst.player in proto_inst.factory.data.players:

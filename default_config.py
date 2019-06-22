@@ -21,7 +21,7 @@ PUBLIC = True
 USE_MP = True
 
 
-SERVER_CPE_EXTENSIONS = (('CustomBlocks', 1), ('BulkBlockUpdate', 1), ('FullCP437', 1), ('MessageTypes', 1), ('SetMapEnvProperty', 1), ('HackControl', 1), ('LongerMessages', 1), ('ExtEntityPositions', 1), ('TwoWayPing', 1))
+SERVER_CPE_EXTENSIONS = (('CustomBlocks', 1), ('BulkBlockUpdate', 1), ('FullCP437', 1), ('MessageTypes', 1), ('EnvMapAspect', 1), ('HackControl', 1), ('LongerMessages', 1), ('ExtEntityPositions', 1), ('TwoWayPing', 1))
 
 SERVER_COLORS = '01234567890abcdef'
 STATUS_MESSAGES = ['**connections', '**disconnections', '**saves', '**autosaves']

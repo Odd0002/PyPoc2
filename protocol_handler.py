@@ -28,8 +28,6 @@ def handle_data_recv(proto_inst):
             print("Error! packet num, data and buf was", packet_num, data + proto_inst.buf)
             return
 
-    
-
 def handle_packet(packet_num, data, proto_inst):
     if not proto_inst.initialized:
         handle_initialization(packet_num, data, proto_inst)
@@ -50,8 +48,6 @@ def handle_packet(packet_num, data, proto_inst):
             handle_two_way_ping(data, proto_inst)
             pass
         #handle_packet(proto_inst)
-
-
 
 def handle_initialization(packet_num, data, proto_inst):
         if (packet_num != 0):
