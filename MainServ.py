@@ -57,9 +57,9 @@ class classic_CPE_factory(protocol.ServerFactory):
     def buildProtocol(self, addr):
         return classic_CPE_protocol(self)
 
-    def shutdown(arg1, arg2):
-        reactor.callFromThread(finish_server)
-        reactor.callLater(2, stop_reactor)
+def shutdown(arg1, arg2):
+    reactor.callFromThread(finish_server)
+    reactor.callLater(2, stop_reactor)
 
 def finish_server():
     data = global_data.Data()
