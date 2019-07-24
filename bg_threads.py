@@ -22,35 +22,32 @@ def heartbeat_handler(players, salt, g_data):
         print("Heartbeat failed:", e)
 
 def update(data):
-    delay = config.UPDATE_DELAY
     players = data.players
     ping_counter = 0
     save_counter = 0
-    while not data.shutdown:
-        try:
-            if ping_counter == 5:
-                handle_ping(players)
-                ping_counter = 0
-            else:
-                ping_counter += 1
+    try:
+        if ping_counter == 5:
+            handle_ping(players)
+            ping_counter = 0
+        else:
+            ping_counter += 1
 
-            if save_counter == config.AUTOSAVE_INTERVAL:
-                map_handler.save_all_maps()
-                maps_saved_msg = helpers.gen_chat_packet("Maps autosaved.", 0)
-                data.chat_broadcast_queue.put((maps_saved_msg, '**autosaves'))
-                save_counter = 0
-            else:
-                save_counter += 1
+        if save_counter == config.AUTOSAVE_INTERVAL:
+            map_handler.save_all_maps()
+            maps_saved_msg = helpers.gen_chat_packet("Maps autosaved.", 0)
+            data.chat_broadcast_queue.put((maps_saved_msg, '**autosaves'))
+            save_counter = 0
+        else:
+            save_counter += 1
 
-            handle_update_player_positions(players)
-            handle_setblocks(data, players)
-            handle_broadcast_chat(data, players)
-            #send_player_packets(players)
-            handle_player_removals(players)
-        except Exception as e:
-            print("bg update exception:", e)
-            raise Exception
-        time.sleep(delay)
+        handle_update_player_positions(players)
+        handle_setblocks(data, players)
+        handle_broadcast_chat(data, players)
+        #send_player_packets(players)
+        handle_player_removals(players)
+    except Exception as e:
+        print("bg update exception:", e)
+        raise Exception
 
 def handle_ping(players):
     ping_packet = helpers.gen_ping_packet()
